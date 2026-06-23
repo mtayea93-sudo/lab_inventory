@@ -368,6 +368,8 @@
             .data-table th, .data-table td { padding: 8px 6px; }
         }
     </style>
+<base target="_blank">
+<base target="_blank">
 </head>
 <body>
 
@@ -400,6 +402,8 @@
         <div class="nav-tabs">
             <button class="nav-tab active" onclick="showTab('inventory', this)">📦 المخزون</button>
             <button class="nav-tab" onclick="showTab('consumption', this)">📊 الاستهلاك</button>
+            <button class="nav-tab" onclick="showTab('dailyStatement', this)">📋 بيان الاستهلاك اليومي</button>
+            <button class="nav-tab" onclick="showTab('monthlyStats', this)">📈 الإحصائيات الشهرية</button>
             <button class="nav-tab" onclick="showTab('orders', this)">🛒 الطلبيات</button>
             <button class="nav-tab" onclick="showTab('debts', this)">💰 المديونية</button>
         </div>
@@ -442,6 +446,7 @@
                             <option value="امبول">امبول</option>
                             <option value="قاروره">قاروره</option>
                             <option value="جركن">جركن</option>
+                            <option value="زجاجة">زجاجة</option>
                             <option value="علبه بلاستيك">علبه بلاستيك</option>
                             <option value="علبه زجاج">علبه زجاج</option>
                             <option value="علبه معدن">علبه معدن</option>
@@ -517,6 +522,54 @@
             </div>
         </div>
 
+        <!-- ===== MONTHLY STATS TAB ===== -->
+        <div class="tab-content" id="monthlyStatsTab">
+            <div class="content-card">
+                <h2>📈 الإحصائيات الشهرية</h2>
+                <div class="hint-box">
+                    💡 يتم تجميع استهلاك كل شهر تلقائياً من بيانات الاستهلاك اليومي. اضغط على أي شهر لعرض تفاصيل استهلاكه بالأصناف.
+                </div>
+
+                <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
+                    <div class="stat-box">
+                        <div class="number" id="msTotalMonths">0</div>
+                        <div class="label">شهور مسجلة</div>
+                    </div>
+                    <div class="stat-box" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);">
+                        <div class="number" id="msTotalItems">0</div>
+                        <div class="label">إجمالي الأصناف</div>
+                    </div>
+                    <div class="stat-box" style="background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);">
+                        <div class="number" id="msTotalCost">0</div>
+                        <div class="label">إجمالي التكلفة</div>
+                    </div>
+                </div>
+
+                <div id="monthlyStatsMonths" style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 25px;"></div>
+
+                <div id="monthlyStatsDetail" style="display:none;">
+                    <h3 style="color: #333; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #667eea;">
+                        📅 استهلاك شهر <span id="msSelectedMonth"></span>
+                    </h3>
+                    <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
+                        <div class="stat-box" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);">
+                            <div class="number" id="msDetailItems">0</div>
+                            <div class="label">عدد الأصناف</div>
+                        </div>
+                        <div class="stat-box" style="background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);">
+                            <div class="number" id="msDetailQty">0</div>
+                            <div class="label">إجمالي الكمية</div>
+                        </div>
+                        <div class="stat-box" style="background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);">
+                            <div class="number" id="msDetailCost">0</div>
+                            <div class="label">إجمالي التكلفة</div>
+                        </div>
+                    </div>
+                    <div id="msDetailTable"></div>
+                </div>
+            </div>
+        </div>
+
         <!-- ===== ORDERS TAB ===== -->
         <div class="tab-content" id="ordersTab">
             <div class="content-card">
@@ -537,6 +590,54 @@
                 </div>
 
                 <div id="ordersTable"></div>
+            </div>
+        </div>
+
+        <!-- ===== DAILY STATEMENT TAB ===== -->
+        <div class="tab-content" id="dailyStatementTab">
+            <div class="content-card">
+                <h2>📋 بيان الاستهلاك اليومي</h2>
+                <div class="hint-box">
+                    💡 يتم حفظ استهلاك كل يوم تلقائياً عند الضغط على "حفظ استهلاك اليوم". اضغط على أي يوم لعرض تفاصيل استهلاكه. تُحذف السجلات تلقائياً بعد 15 يوم.
+                </div>
+
+                <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
+                    <div class="stat-box">
+                        <div class="number" id="dsTotalDays">0</div>
+                        <div class="label">أيام مسجلة</div>
+                    </div>
+                    <div class="stat-box" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);">
+                        <div class="number" id="dsTotalItems">0</div>
+                        <div class="label">إجمالي الأصناف</div>
+                    </div>
+                    <div class="stat-box" style="background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);">
+                        <div class="number" id="dsTotalCost">0</div>
+                        <div class="label">إجمالي التكلفة</div>
+                    </div>
+                </div>
+
+                <div id="dailyStatementDays" style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 25px;"></div>
+
+                <div id="dailyStatementDetail" style="display:none;">
+                    <h3 style="color: #333; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #667eea;">
+                        📅 استهلاك يوم <span id="dsSelectedDay"></span>
+                    </h3>
+                    <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
+                        <div class="stat-box" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);">
+                            <div class="number" id="dsDetailItems">0</div>
+                            <div class="label">عدد الأصناف</div>
+                        </div>
+                        <div class="stat-box" style="background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);">
+                            <div class="number" id="dsDetailQty">0</div>
+                            <div class="label">إجمالي الكمية</div>
+                        </div>
+                        <div class="stat-box" style="background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);">
+                            <div class="number" id="dsDetailCost">0</div>
+                            <div class="label">إجمالي التكلفة</div>
+                        </div>
+                    </div>
+                    <div id="dsDetailTable"></div>
+                </div>
             </div>
         </div>
 
@@ -608,7 +709,7 @@
 <!-- Firebase SDK -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, deleteDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAclAL-32zx4biBn97QqBiaWS4M7U7Cf3E",
@@ -713,6 +814,8 @@
             document.getElementById('dashboard').style.display = 'block';
             document.getElementById('errorMsg').classList.remove('show');
             loadFromFirebase();
+            // Initialize stats month picker to current month
+            document.getElementById('statsMonthPicker').value = new Date().toISOString().slice(0, 7);
         } else {
             document.getElementById('errorMsg').classList.add('show');
             document.getElementById('password').value = '';
@@ -745,6 +848,8 @@
         renderConsumption();
         renderOrders();
         renderDebts();
+        renderDailyStatement();
+        renderMonthlyStats();
     }
 
     // ========== INVENTORY ==========
@@ -848,32 +953,59 @@
     window.saveYesterdayConsumption = async function() {
         if (!confirm('هل تريد حفظ استهلاك اليوم الحالي كـ "يوم سابق" وبدء يوم جديد؟')) return;
 
-        // Save to history
         const today = new Date().toISOString().split('T')[0];
         const historyItems = [];
+        let totalQty = 0;
+        let totalCost = 0;
 
         consumption.forEach(c => {
             const item = inventory.find(i => i.id === c.itemId);
             if (item && c.daily > 0) {
+                const qty = parseFloat(c.daily) || 0;
+                const cost = qty * (parseFloat(item.price) || 0);
+                totalQty += qty;
+                totalCost += cost;
                 historyItems.push({
                     name: item.name,
                     unit: item.unit,
-                    qty: c.daily,
-                    cost: c.daily * item.price
+                    qty: qty,
+                    cost: cost
                 });
             }
         });
 
-        if (historyItems.length > 0) {
-            try {
-                await setDoc(doc(db, "lab_history", today), {
-                    items: historyItems,
-                    date: today,
-                    timestamp: new Date().toISOString()
-                });
-            } catch (e) {
-                console.error("History save error:", e);
-            }
+        if (historyItems.length === 0) {
+            alert('⚠️ لا يوجد استهلاك يومي لحفظه. أدخل استهلاك يومي أولاً.');
+            return;
+        }
+
+        // Save to localStorage daily records (temporary, auto-deletes after 15 days)
+        loadDailyRecords(); // Ensure fresh data
+
+        // Remove existing record for same date if any
+        dailyRecords = dailyRecords.filter(r => r.date !== today);
+
+        // Add new record
+        dailyRecords.push({
+            date: today,
+            items: historyItems,
+            totalItems: historyItems.length,
+            totalQty: totalQty,
+            totalCost: totalCost
+        });
+
+        saveDailyRecords();
+        console.log("[Save] Saved to daily records:", today, historyItems);
+
+        // Also try to save to Firebase (optional backup)
+        try {
+            await setDoc(doc(db, "lab_history", today), {
+                items: historyItems,
+                date: today,
+                timestamp: new Date().toISOString()
+            });
+        } catch (e) {
+            console.error("[Save] Firebase backup failed:", e);
         }
 
         // Reset daily consumption
@@ -1006,6 +1138,8 @@
     };
 
     // ========== ORDERS ==========
+    let orderItems = [];
+
     function renderOrders() {
         const container = document.getElementById('ordersTable');
 
@@ -1020,7 +1154,7 @@
             return;
         }
 
-        let orderItems = [];
+        orderItems = [];
         let totalValue = 0;
 
         consumption.forEach(c => {
@@ -1054,16 +1188,18 @@
                 <th>الكمية المطلوبة</th>
                 <th>سعر الوحدة</th>
                 <th>الإجمالي</th>
+                <th>إجراءات</th>
             </tr></thead><tbody>`;
 
-        orderItems.forEach(o => {
+        orderItems.forEach((o, idx) => {
             html += `<tr>
                 <td>${o.item.name}</td>
                 <td>${o.monthlyNeed.toFixed(2)} ${o.item.unit}</td>
                 <td>${o.item.qty} ${o.item.unit}</td>
-                <td>${o.orderQty}</td>
+                <td><input type="number" value="${o.orderQty}" min="0" onchange="updateOrderQty(${idx}, this.value)" style="width:80px; padding:6px; border:1px solid #ddd; border-radius:6px; text-align:center;"></td>
                 <td>${o.item.price} ج.م</td>
-                <td>${o.value.toFixed(2)} ج.م</td>
+                <td id="orderVal_${idx}">${o.value.toFixed(2)} ج.م</td>
+                <td><button class="btn-delete" onclick="deleteOrderItem(${idx})">🗑️</button></td>
             </tr>`;
         });
 
@@ -1080,6 +1216,30 @@
         document.getElementById('statOrderItems').textContent = items;
         document.getElementById('statOrderTotal').textContent = total.toFixed(2) + ' ج.م';
     }
+
+    window.updateOrderQty = function(idx, newQty) {
+        const item = orderItems[idx];
+        if (!item) return;
+        const qty = parseInt(newQty) || 0;
+        const newValue = qty * item.item.price;
+        document.getElementById('orderVal_' + idx).textContent = newValue.toFixed(2) + ' ج.م';
+        // Recalculate total
+        let total = 0;
+        orderItems.forEach((o, i) => {
+            if (i === idx) {
+                total += newValue;
+            } else {
+                total += o.value;
+            }
+        });
+        document.getElementById('statOrderTotal').textContent = total.toFixed(2) + ' ج.م';
+    };
+
+    window.deleteOrderItem = function(idx) {
+        if (!confirm('هل تريد حذف هذا الصنف من الطلبية؟')) return;
+        orderItems.splice(idx, 1);
+        renderOrders();
+    };
 
     // ========== DEBTS ==========
     window.addDebt = async function() {
@@ -1180,6 +1340,374 @@
         await saveToFirebase();
         renderAll();
     };
+
+    // ========== DAILY STATEMENT FUNCTIONS ==========
+    let dailyRecords = []; // Array of {date, items[], totalQty, totalCost, totalItems}
+    const DAYS_TO_KEEP = 15;
+
+    // Load daily records from localStorage (temporary storage, auto-deletes after 15 days)
+    function loadDailyRecords() {
+        try {
+            const stored = localStorage.getItem('lab_daily_records');
+            if (stored) {
+                dailyRecords = JSON.parse(stored);
+                // Auto-delete records older than 15 days
+                const cutoff = new Date();
+                cutoff.setDate(cutoff.getDate() - DAYS_TO_KEEP);
+                const beforeCount = dailyRecords.length;
+                dailyRecords = dailyRecords.filter(r => new Date(r.date) >= cutoff);
+                if (dailyRecords.length !== beforeCount) {
+                    saveDailyRecords();
+                }
+            }
+        } catch (e) {
+            console.error("[DailyStatement] Load error:", e);
+            dailyRecords = [];
+        }
+    }
+
+    function saveDailyRecords() {
+        try {
+            localStorage.setItem('lab_daily_records', JSON.stringify(dailyRecords));
+        } catch (e) {
+            console.error("[DailyStatement] Save error:", e);
+        }
+    }
+
+    window.deleteDailyRecord = function(dateToDelete) {
+        if (!confirm('هل أنت متأكد من حذف بيان استهلاك هذا اليوم؟')) return;
+        dailyRecords = dailyRecords.filter(r => r.date !== dateToDelete);
+        saveDailyRecords();
+        renderDailyStatement();
+        document.getElementById('dailyStatementDetail').style.display = 'none';
+    };
+
+    window.renderDailyStatement = function() {
+        const container = document.getElementById('dailyStatementDays');
+        const detailSection = document.getElementById('dailyStatementDetail');
+
+        // Hide detail when re-rendering
+        detailSection.style.display = 'none';
+
+        // Update summary stats
+        const totalDays = dailyRecords.length;
+        let totalItemsAll = 0;
+        let totalCostAll = 0;
+        dailyRecords.forEach(r => {
+            totalItemsAll += r.totalItems || 0;
+            totalCostAll += r.totalCost || 0;
+        });
+
+        document.getElementById('dsTotalDays').textContent = totalDays;
+        document.getElementById('dsTotalItems').textContent = totalItemsAll;
+        document.getElementById('dsTotalCost').textContent = totalCostAll.toFixed(2) + ' ج.م';
+
+        if (dailyRecords.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state" style="width:100%;">
+                    <div class="icon">📭</div>
+                    <div>لا يوجد أيام مسجلة</div>
+                    <div style="font-size:13px; margin-top:5px;">احفظ استهلاك يومي من شاشة الاستهلاك أولاً</div>
+                </div>`;
+            return;
+        }
+
+        // Sort by date descending (newest first)
+        const sorted = [...dailyRecords].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        let html = '';
+        sorted.forEach((record, idx) => {
+            const d = new Date(record.date + 'T00:00:00');
+            const monthsAr = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+            const daysAr = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+            const dayLabel = `${daysAr[d.getDay()]} ${d.getDate()} ${monthsAr[d.getMonth()]}`;
+
+            // Calculate days remaining before auto-delete
+            const recordDate = new Date(record.date);
+            const today = new Date();
+            const daysDiff = Math.floor((today - recordDate) / (1000 * 60 * 60 * 24));
+            const daysLeft = Math.max(0, DAYS_TO_KEEP - daysDiff);
+
+            html += `
+                <div style="position: relative; display: inline-block;">
+                    <button onclick="showDailyDetail(${idx})" style="
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                        border: none;
+                        padding: 15px 25px;
+                        border-radius: 16px;
+                        cursor: pointer;
+                        font-size: 15px;
+                        font-weight: 700;
+                        transition: all 0.3s;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        gap: 6px;
+                        min-width: 140px;
+                        box-shadow: 0 4px 15px rgba(102,126,234,0.3);
+                    " onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(102,126,234,0.4)';" 
+                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(102,126,234,0.3)';">
+                        <span style="font-size: 20px;">📅</span>
+                        <span>${dayLabel}</span>
+                        <span style="font-size: 11px; opacity: 0.8;">${record.totalItems || 0} صنف · ${(record.totalCost || 0).toFixed(0)} ج.م</span>
+                        <span style="font-size: 10px; opacity: 0.6;">⏳ ${daysLeft} يوم متبقي</span>
+                    </button>
+                    <button onclick="event.stopPropagation(); deleteDailyRecord('${record.date}')" title="حذف" style="
+                        position: absolute;
+                        top: -8px;
+                        left: -8px;
+                        background: #ff5252;
+                        color: white;
+                        border: none;
+                        width: 26px;
+                        height: 26px;
+                        border-radius: 50%;
+                        cursor: pointer;
+                        font-size: 14px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        box-shadow: 0 2px 8px rgba(255,82,82,0.4);
+                        z-index: 10;
+                    ">×</button>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    };
+
+    window.showDailyDetail = function(sortedIdx) {
+        // Get the record from sorted array
+        const sorted = [...dailyRecords].sort((a, b) => new Date(b.date) - new Date(a.date));
+        const record = sorted[sortedIdx];
+        if (!record) return;
+
+        const section = document.getElementById('dailyStatementDetail');
+        const titleDay = document.getElementById('dsSelectedDay');
+        const tableDiv = document.getElementById('dsDetailTable');
+
+        // Format date
+        const d = new Date(record.date + 'T00:00:00');
+        const monthsAr = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+        const daysAr = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+        titleDay.textContent = `${daysAr[d.getDay()]} ${d.getDate()} ${monthsAr[d.getMonth()]} ${d.getFullYear()}`;
+
+        // Update detail stats
+        document.getElementById('dsDetailItems').textContent = record.totalItems || 0;
+        document.getElementById('dsDetailQty').textContent = (record.totalQty || 0).toFixed(2);
+        document.getElementById('dsDetailCost').textContent = (record.totalCost || 0).toFixed(2) + ' ج.م';
+
+        // Build table
+        let html = `<table class="data-table">
+            <thead><tr>
+                <th>#</th>
+                <th>الصنف</th>
+                <th>الوحدة</th>
+                <th>الكمية</th>
+                <th>التكلفة</th>
+            </tr></thead><tbody>`;
+
+        if (record.items && record.items.length > 0) {
+            record.items.forEach((item, idx) => {
+                const qty = parseFloat(item.qty) || 0;
+                const cost = parseFloat(item.cost) || 0;
+                html += `<tr>
+                    <td>${idx + 1}</td>
+                    <td style="font-weight:600;">${item.name || ''}</td>
+                    <td>${item.unit || ''}</td>
+                    <td style="font-weight:600; color:#667eea;">${qty} ${item.unit || ''}</td>
+                    <td>${cost.toFixed(2)} ج.م</td>
+                </tr>`;
+            });
+
+            html += `<tr style="background:#f8f9fa; font-weight:700;">
+                <td colspan="3">الإجمالي</td>
+                <td>${(record.totalQty || 0).toFixed(2)}</td>
+                <td>${(record.totalCost || 0).toFixed(2)} ج.م</td>
+            </tr>`;
+        } else {
+            html += `<tr><td colspan="5" style="text-align:center; color:#999; padding:30px;">لا توجد تفاصيل</td></tr>`;
+        }
+
+        html += '</tbody></table>';
+        tableDiv.innerHTML = html;
+
+        section.style.display = 'block';
+        section.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    // ========== MONTHLY STATS FUNCTIONS ==========
+    window.renderMonthlyStats = function() {
+        const container = document.getElementById('monthlyStatsMonths');
+        const detailSection = document.getElementById('monthlyStatsDetail');
+
+        detailSection.style.display = 'none';
+
+        // Group daily records by month
+        const monthGroups = {};
+        dailyRecords.forEach(r => {
+            const monthKey = r.date.slice(0, 7); // "2026-06"
+            if (!monthGroups[monthKey]) {
+                monthGroups[monthKey] = { 
+                    monthKey, 
+                    records: [], 
+                    totalItems: 0, 
+                    totalQty: 0, 
+                    totalCost: 0,
+                    itemTotals: {}
+                };
+            }
+            monthGroups[monthKey].records.push(r);
+            monthGroups[monthKey].totalItems += r.totalItems || 0;
+            monthGroups[monthKey].totalQty += r.totalQty || 0;
+            monthGroups[monthKey].totalCost += r.totalCost || 0;
+
+            // Aggregate items
+            if (r.items) {
+                r.items.forEach(item => {
+                    const name = item.name || '';
+                    if (!monthGroups[monthKey].itemTotals[name]) {
+                        monthGroups[monthKey].itemTotals[name] = { 
+                            name, 
+                            unit: item.unit || '', 
+                            qty: 0, 
+                            cost: 0 
+                        };
+                    }
+                    monthGroups[monthKey].itemTotals[name].qty += parseFloat(item.qty) || 0;
+                    monthGroups[monthKey].itemTotals[name].cost += parseFloat(item.cost) || 0;
+                });
+            }
+        });
+
+        const monthsList = Object.values(monthGroups);
+
+        // Update summary stats
+        document.getElementById('msTotalMonths').textContent = monthsList.length;
+        let allItems = 0, allCost = 0;
+        monthsList.forEach(m => {
+            allItems += m.totalItems;
+            allCost += m.totalCost;
+        });
+        document.getElementById('msTotalItems').textContent = allItems;
+        document.getElementById('msTotalCost').textContent = allCost.toFixed(2) + ' ج.م';
+
+        if (monthsList.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state" style="width:100%;">
+                    <div class="icon">📭</div>
+                    <div>لا يوجد شهور مسجلة</div>
+                    <div style="font-size:13px; margin-top:5px;">احفظ استهلاك يومي أولاً لتجميع الإحصائيات الشهرية</div>
+                </div>`;
+            return;
+        }
+
+        // Sort by month descending
+        monthsList.sort((a, b) => b.monthKey.localeCompare(a.monthKey));
+
+        let html = '';
+        monthsList.forEach((monthData, idx) => {
+            const [year, monthNum] = monthData.monthKey.split('-');
+            const monthsAr = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+            const monthLabel = `${monthsAr[parseInt(monthNum) - 1]} ${year}`;
+            const daysCount = monthData.records.length;
+
+            html += `
+                <button onclick="showMonthlyDetail(${idx})" style="
+                    background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+                    color: white;
+                    border: none;
+                    padding: 15px 25px;
+                    border-radius: 16px;
+                    cursor: pointer;
+                    font-size: 15px;
+                    font-weight: 700;
+                    transition: all 0.3s;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 6px;
+                    min-width: 160px;
+                    box-shadow: 0 4px 15px rgba(76,175,80,0.3);
+                " onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(76,175,80,0.4)';" 
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(76,175,80,0.3)';">
+                    <span style="font-size: 20px;">📊</span>
+                    <span>${monthLabel}</span>
+                    <span style="font-size: 11px; opacity: 0.8;">${daysCount} يوم · ${Object.keys(monthData.itemTotals).length} صنف</span>
+                    <span style="font-size: 11px; opacity: 0.8;">${monthData.totalCost.toFixed(0)} ج.م</span>
+                </button>
+            `;
+        });
+
+        // Store for detail view
+        window._monthlyData = monthsList;
+
+        container.innerHTML = html;
+    };
+
+    window.showMonthlyDetail = function(idx) {
+        const monthData = window._monthlyData[idx];
+        if (!monthData) return;
+
+        const section = document.getElementById('monthlyStatsDetail');
+        const titleMonth = document.getElementById('msSelectedMonth');
+        const tableDiv = document.getElementById('msDetailTable');
+
+        const [year, monthNum] = monthData.monthKey.split('-');
+        const monthsAr = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+        titleMonth.textContent = `${monthsAr[parseInt(monthNum) - 1]} ${year}`;
+
+        // Update detail stats
+        const items = Object.values(monthData.itemTotals);
+        let totalQty = 0, totalCost = 0;
+        items.forEach(i => { totalQty += i.qty; totalCost += i.cost; });
+
+        document.getElementById('msDetailItems').textContent = items.length;
+        document.getElementById('msDetailQty').textContent = totalQty.toFixed(2);
+        document.getElementById('msDetailCost').textContent = totalCost.toFixed(2) + ' ج.م';
+
+        // Build table
+        let html = `<table class="data-table">
+            <thead><tr>
+                <th>#</th>
+                <th>الصنف</th>
+                <th>الوحدة</th>
+                <th>إجمالي الكمية</th>
+                <th>إجمالي التكلفة</th>
+            </tr></thead><tbody>`;
+
+        if (items.length > 0) {
+            items.sort((a, b) => b.qty - a.qty); // Sort by quantity descending
+            items.forEach((item, idx) => {
+                html += `<tr>
+                    <td>${idx + 1}</td>
+                    <td style="font-weight:600;">${item.name}</td>
+                    <td>${item.unit}</td>
+                    <td style="font-weight:600; color:#667eea;">${item.qty.toFixed(2)} ${item.unit}</td>
+                    <td>${item.cost.toFixed(2)} ج.م</td>
+                </tr>`;
+            });
+
+            html += `<tr style="background:#f8f9fa; font-weight:700;">
+                <td colspan="3">الإجمالي</td>
+                <td>${totalQty.toFixed(2)}</td>
+                <td>${totalCost.toFixed(2)} ج.م</td>
+            </tr>`;
+        } else {
+            html += `<tr><td colspan="5" style="text-align:center; color:#999; padding:30px;">لا توجد تفاصيل</td></tr>`;
+        }
+
+        html += '</tbody></table>';
+        tableDiv.innerHTML = html;
+
+        section.style.display = 'block';
+        section.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    // ========== AUTO CLEANUP (runs on load) ==========
+    loadDailyRecords();
 </script>
 </body>
 </html>
